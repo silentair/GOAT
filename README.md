@@ -1,6 +1,5 @@
 # GOAT
-#### Here is the source code for the article 'Ready for emerging threats to recommender systems? A graph convolution-based generative shilling attack' published on Information Science.
-<br>
+#### Here is the source code for the article 'Ready for emerging threats to recommender systems? A graph convolution-based generative shilling attack' published on Information Science.<br>
 
 #### The primary model (GOAT) is achieved by TensorFlow in version 1.0; another version of TensorFlow 2.0 will be offered in the future.<br>
 
