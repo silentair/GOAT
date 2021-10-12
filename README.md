@@ -13,6 +13,7 @@
 ## AttackGenerator_xx.py
 #### Shilling attack model initializing and training. <br>
 
+## Other tips
 #### *How to use it: (in command line) 'python AttackGenerator_xx.py'
 #### *It would take a while at the first running for data processing.
 #### Further questions, please contact the corresponding author.
