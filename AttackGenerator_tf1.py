@@ -1,6 +1,6 @@
 import Dao_atk
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 import time
 
 dataset_name = 'DouBan_small'
@@ -10,7 +10,6 @@ dao = Dao_atk.AtkDao(dataset_name)
 link_size_g = {'layer1': 128, 'layer2': 256, 'layer3':32}
 embed_size_g = {'layer1':128, 'layer2':256, 'layer3':64}
 rating_size_g = {'layer1': 128 }
-
 # discriminator network
 rating_size_d = {'layer1':1024, 'layer2':512, 'layer3':256, 'layer4':1}
 
@@ -20,6 +19,13 @@ epoch_num = 10000
 train_num_d = 5
 # generator training number in each epoch
 train_num_g = 10
+# max length of a fake user profile
+sup_generate_num = dao.rating_len_sup
+# min length of a template user profile 
+inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
+# size of selected items
+selected_size = 0.3
+
 # time
 time_consuming = 0
 
@@ -35,8 +41,8 @@ def sample_from_noise(shape):
 # nosie z
 G_num = tf.placeholder(dtype=tf.int32)
 Z_noise = tf.placeholder(dtype=tf.float32,shape=[None,1])
-# Z_label = tf.placeholder(dtype=tf.float32,shape=[None,1])
-Z = Z_noise # tf.concat([Z_noise,Z_label],axis=1)
+#Z_label = tf.placeholder(dtype=tf.float32,shape=[None,1])
+Z = Z_noise #tf.concat([Z_noise,Z_label],axis=1)
 
 # link generator layer1
 w1_link_g = tf.Variable(xavier_init([1,link_size_g['layer1']]),name='w1_link_g')
@@ -135,19 +141,18 @@ saver = tf.train.Saver(max_to_keep=3)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
-    inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
     for epoch in range(epoch_num):
         if epoch < epoch_num*0.5:
-            sup_generate_num = int(dao.rating_len_sup*0.5)
+            sup_generate_num_ = int(sup_generate_num*0.5)
         elif epoch < epoch_num*0.7:
-            sup_generate_num = int(dao.rating_len_sup*0.7)
+            sup_generate_num_ = int(sup_generate_num*0.7)
         else:
-            sup_generate_num = int(dao.rating_len_sup)
+            sup_generate_num_ = int(sup_generate_num)
 
-        s = time.clock()
+        s = time.time()
         for step in range(train_num_d):
             #print('discriminator training ' + str(step+1) + ' / ' + str(train_num_d))
-            generate_num_d,batch_d,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num_d,batch_d,_ = dao.generateBatch(sup_generate_num_, inf_user_rating_num, selected_size)
             z_noise_d = sample_from_noise([generate_num_d,1])
             #z_label_d = np.ones([generate_num_d,1])*generate_num_d / dao.rating_len_sup
             eps_d = np.random.random()
@@ -156,12 +161,12 @@ with tf.Session() as sess:
     
         for step in range(train_num_g):
             #print('generator training ' + str(step+1) + ' / ' + str(train_num_g)) for bn in range(batch_num):
-            generate_num_g,batch_g,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num_g,batch_g,_ = dao.generateBatch(sup_generate_num_, inf_user_rating_num, selected_size)
             z_noise_g = sample_from_noise([generate_num_g,1])
             #z_label_g = np.ones([generate_num_g,1])*generate_num_g / dao.rating_len_sup
 
             sess.run(rating_op_g, feed_dict={ Z_noise:z_noise_g, G_num:generate_num_g, R_real:batch_g['rating_vec'] })
-        e = time.clock()
+        e = time.time()
         
         time_consuming = time_consuming + e - s
         # convergence
@@ -173,12 +178,12 @@ with tf.Session() as sess:
         #    print(sess.run(R_fake, feed_dict={ Z_noise:z_noise, Z_label:z_label, G_num:generate_num }))
         #    print(batch['rating_vec'])
         #    print(generate_num)
-        #    break                        
+        #    break
 
         if epoch % 10 == 0:
             print('epoch '+str(epoch+1)+' / '+str(epoch_num))
             
-            generate_num,batch,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num,batch,_ = dao.generateBatch(sup_generate_num_, inf_user_rating_num, selected_size)
             z_noise = sample_from_noise([generate_num,1])
             #z_label = np.ones([generate_num,1])*generate_num / dao.rating_len_sup
             eps = np.random.random()
@@ -193,7 +198,8 @@ with tf.Session() as sess:
             #print(batch['rating_vec'])
             #print(generate_num)
 
-    save_path = './models_GOAT_'+dataset_name+'/'+dataset_name+'.ckpt'
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+    save_path = './models_GOAT_'+dataset_name+'_'+timestamp+'/'+dataset_name+'.ckpt'
     print('saving model...')
     saver.save(sess,save_path)
     print(time_consuming)

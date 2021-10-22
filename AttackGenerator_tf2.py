@@ -1,8 +1,8 @@
 import Dao_atk
-import tensorflow as tf
-import numpy as np
-import time
 from functools import partial
+import numpy as np
+import tensorflow as tf
+import time
 
 dataset_name = 'DouBan_small'
 dao = Dao_atk.AtkDao(dataset_name)
@@ -11,24 +11,24 @@ dao = Dao_atk.AtkDao(dataset_name)
 link_size_g = {'layer1': 128, 'layer2': 256, 'layer3':32}
 embed_size_g = {'layer1':128, 'layer2':256, 'layer3':64}
 rating_size_g = {'layer1': 128 }
-
 # discriminator network
 rating_size_d = {'layer1':1024, 'layer2':512, 'layer3':256, 'layer4':1}
 
 # max training epochs
-epoch_num = 10000
+epoch_num = 10
 # discriminator training number in each epoch
 train_num_d = 5
 # generator training number in each epoch
 train_num_g = 10
+# max length of a fake user profile
+sup_generate_num = dao.rating_len_sup
+# min length of a template user profile 
+inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
+# size of selected items
+selected_size = 0.3
+
 # time
 time_consuming = 0
-
-# Xavier initialization
-def xavier_init(size):
-    input_dim = size[0]
-    xavier_stddev = 1. / tf.sqrt(input_dim / 2.)
-    return tf.truncated_normal(shape=size, stddev=xavier_stddev)
 
 def sample_from_noise(shape):
     return np.random.normal(0,1,size=shape)
@@ -158,19 +158,18 @@ class AttackGenerator(tf.keras.Model):
 if __name__ == '__main__':
     attacker = AttackGenerator()
     
-    inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
-    for epoch in range(1):
+    for epoch in range(epoch_num):
         if epoch < epoch_num*0.5:
-            sup_generate_num = int(dao.rating_len_sup*0.5)
+            sup_generate_num_ = int(sup_generate_num*0.5)
         elif epoch < epoch_num*0.7:
-            sup_generate_num = int(dao.rating_len_sup*0.7)
+            sup_generate_num_ = int(sup_generate_num*0.7)
         else:
-            sup_generate_num = int(dao.rating_len_sup)
+            sup_generate_num_ = int(sup_generate_num)
 
         s = time.time()
         for step in range(train_num_d):
             #print('discriminator training ' + str(step+1) + ' / ' + str(train_num_d))
-            generate_num_d,batch_d,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num_d,batch_d,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num, selected_size)
             z_noise_d = sample_from_noise([generate_num_d,1])
             #z_label_d = np.ones([generate_num_d,1])*generate_num_d / dao.rating_len_sup
             z = z_noise_d#z = np.concatenate([z_noise_d,z_label_d],1)
@@ -180,7 +179,7 @@ if __name__ == '__main__':
             
         for step in range(train_num_g):
             #print('generator training ' + str(step+1) + ' / ' + str(train_num_g)) for bn in range(batch_num):
-            generate_num_g,batch_g,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num_g,batch_g,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num, selected_size)
             z_noise_g = sample_from_noise([generate_num_g,1])
             #z_label_g = np.ones([generate_num_g,1])*generate_num_g / dao.rating_len_sup
             z = z_noise_g#z = np.concatenate([z_noise_g,z_label_g],1)
@@ -198,12 +197,12 @@ if __name__ == '__main__':
         #    print(sess.run(R_fake, feed_dict={ Z_noise:z_noise, Z_label:z_label, G_num:generate_num }))
         #    print(batch['rating_vec'])
         #    print(generate_num)
-        #    break                        
+        #    break
 
         if epoch % 10 == 0:
             print('epoch '+str(epoch+1)+' / '+str(epoch_num))
             
-            generate_num,batch,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num)
+            generate_num,batch,_ = dao.generateBatch(sup_generate_num, inf_user_rating_num, selected_size)
             z_noise = sample_from_noise([generate_num,1])
             #z_label = np.ones([generate_num,1])*generate_num / dao.rating_len_sup
             z = z_noise#z = np.concatenate([z_noise,z_label],1)
