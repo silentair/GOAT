@@ -30,7 +30,7 @@ def xavier_init(size):
     return tf.truncated_normal(shape=size, stddev=xavier_stddev)
 
 def sample_from_noise(shape):
-    return np.random.normal(0,0.5,size=shape)
+    return np.random.normal(0,1,size=shape)
 
 # nosie z
 G_num = tf.placeholder(dtype=tf.int32)
