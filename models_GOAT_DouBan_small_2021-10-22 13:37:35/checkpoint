@@ -1,2 +1,0 @@
-model_checkpoint_path: "DouBan_small.ckpt"
-all_model_checkpoint_paths: "DouBan_small.ckpt"
