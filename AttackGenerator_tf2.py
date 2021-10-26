@@ -15,7 +15,7 @@ rating_size_g = {'layer1': 128 }
 rating_size_d = {'layer1':1024, 'layer2':512, 'layer3':256, 'layer4':1}
 
 # max training epochs
-epoch_num = 10
+epoch_num = 10000
 # discriminator training number in each epoch
 train_num_d = 5
 # generator training number in each epoch
