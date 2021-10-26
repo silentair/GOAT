@@ -25,6 +25,11 @@ sup_generate_num = dao.rating_len_sup
 inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
 # size of selected items
 selected_size = 0.3
+# regularization
+reg_grad = 10
+reg_rating = 10
+# learning rate
+lr = 0.001
 
 # time
 time_consuming = 0
@@ -119,19 +124,19 @@ R_real_d = rating_discriminator(R_real)
 R_fake_d = rating_discriminator(R_fake)
 
 # generator loss with Rating Penalty
-loss_rating_g = -R_fake_d + 10 * tf.reduce_mean((R_real-R_fake)**2)
+loss_rating_g = -R_fake_d + reg_rating * tf.reduce_mean((R_real-R_fake)**2)
 # discriminator loss
 loss_rating_real_d = -R_real_d
 loss_rating_fake_d = R_fake_d
-loss_rating_d = loss_rating_real_d + loss_rating_fake_d + 10 * (tf.norm(tf.gradients(R_medium_d,R_medium),ord=2)-1)**2
+loss_rating_d = loss_rating_real_d + loss_rating_fake_d + reg_grad * (tf.norm(tf.gradients(R_medium_d,R_medium),ord=2)-1)**2
 
 # variable list
 var_list_rating_g = [w1_link_g,b1_link_g,w2_link_g,b2_link_g, w1_embed_g,b1_embed_g,w2_embed_g,b2_embed_g,w1_rating_g,b1_rating_g]
 var_list_rating_d = [w1_rating_d,b1_rating_d,w2_rating_d,b2_rating_d,w3_rating_d,b3_rating_d]
 
 # optimizer for generator
-rating_op_g = tf.train.AdamOptimizer(0.001).minimize(loss_rating_g, var_list=var_list_rating_g)
-rating_op_d = tf.train.AdamOptimizer(0.001).minimize(loss_rating_d, var_list=var_list_rating_d)
+rating_op_g = tf.train.AdamOptimizer(lr).minimize(loss_rating_g, var_list=var_list_rating_g)
+rating_op_d = tf.train.AdamOptimizer(lr).minimize(loss_rating_d, var_list=var_list_rating_d)
 
 saver = tf.train.Saver(max_to_keep=3)
 
@@ -143,9 +148,9 @@ with tf.Session() as sess:
 
     for epoch in range(epoch_num):
         if epoch < epoch_num*0.5:
-            sup_generate_num_ = int(sup_generate_num*0.5)
+            sup_generate_num_ = int(max(sup_generate_num*0.5,inf_user_rating_num))
         elif epoch < epoch_num*0.7:
-            sup_generate_num_ = int(sup_generate_num*0.7)
+            sup_generate_num_ = int(max(sup_generate_num*0.7,inf_user_rating_num))
         else:
             sup_generate_num_ = int(sup_generate_num)
 

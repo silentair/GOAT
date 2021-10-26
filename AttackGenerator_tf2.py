@@ -26,6 +26,11 @@ sup_generate_num = dao.rating_len_sup
 inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
 # size of selected items
 selected_size = 0.3
+# regularization
+reg_grad = 10
+reg_rating = 10
+# learning rate
+lr = 0.001
 
 # time
 time_consuming = 0
@@ -64,8 +69,8 @@ class AttackGenerator(tf.keras.Model):
         # rating discriminator layer4
         self.rating_d_layer4 = tf.keras.layers.Dense(rating_size_d['layer4'], activation=partial(tf.nn.leaky_relu, alpha=0.2))
         ''' optimizer '''
-        self.optimizer_g = tf.keras.optimizers.Adam(learning_rate=0.001)
-        self.optimizer_d = tf.keras.optimizers.Adam(learning_rate=0.001)
+        self.optimizer_g = tf.keras.optimizers.Adam(learning_rate=lr)
+        self.optimizer_d = tf.keras.optimizers.Adam(learning_rate=lr)
 
     # generator
     def call(self, Z, G_num):
@@ -119,7 +124,7 @@ class AttackGenerator(tf.keras.Model):
         # discrimation
         R_fake_d = self.discriminator_call(R_fake)
         # generator loss
-        loss_rating_g = -R_fake_d + 10 * tf.reduce_mean((R_real-R_fake)**2)
+        loss_rating_g = -R_fake_d + reg_rating * tf.reduce_mean((R_real-R_fake)**2)
         return loss_rating_g
 
     # discriminator training
@@ -152,7 +157,7 @@ class AttackGenerator(tf.keras.Model):
             loss_rating_real_d = -R_real_d
             loss_rating_fake_d = R_fake_d
             R_medium_grad = tape.gradient(R_medium_d,R_medium)
-            loss_rating_d = loss_rating_real_d + loss_rating_fake_d + 10 * (tf.norm(R_medium_grad,ord=2)-1)**2
+            loss_rating_d = loss_rating_real_d + loss_rating_fake_d + reg_grad * (tf.norm(R_medium_grad,ord=2)-1)**2
             return loss_rating_d
 
 if __name__ == '__main__':
