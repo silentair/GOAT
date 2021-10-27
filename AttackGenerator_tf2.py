@@ -165,9 +165,9 @@ if __name__ == '__main__':
     attacker = AttackGenerator()
     
     for epoch in range(epoch_num):
-        if epoch < epoch_num*0.1:
+        if epoch < epoch_num*0.5:
             sup_generate_num_ = int(max(sup_generate_num*0.5,inf_user_rating_num))
-        elif epoch < epoch_num*0.5:
+        elif epoch < epoch_num*0.7:
             sup_generate_num_ = int(max(sup_generate_num*0.7,inf_user_rating_num))
         else:
             sup_generate_num_ = int(sup_generate_num)
