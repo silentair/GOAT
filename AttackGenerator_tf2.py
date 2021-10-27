@@ -22,7 +22,7 @@ train_num_d = 5
 train_num_g = 10
 # max length of a fake user profile
 sup_generate_num = dao.rating_len_sup
-# min length of a template user profile 
+# min length of a template user profile
 inf_user_rating_num = dao.rating_len_of_users_sorted_by_n[-10][0]
 # size of selected items
 selected_size = 0.3
@@ -127,6 +127,7 @@ class AttackGenerator(tf.keras.Model):
         loss_rating_g = -R_fake_d + reg_rating * tf.reduce_mean((R_real-R_fake)**2)
         return loss_rating_g
 
+
     # discriminator training
     def train_d(self, Z, G_num, R_real, Eps):
         # GradientTape
@@ -164,10 +165,10 @@ if __name__ == '__main__':
     attacker = AttackGenerator()
     
     for epoch in range(epoch_num):
-        if epoch < epoch_num*0.5:
-            sup_generate_num_ = int(sup_generate_num*0.5)
-        elif epoch < epoch_num*0.7:
-            sup_generate_num_ = int(sup_generate_num*0.7)
+        if epoch < epoch_num*0.1:
+            sup_generate_num_ = int(max(sup_generate_num*0.5,inf_user_rating_num))
+        elif epoch < epoch_num*0.5:
+            sup_generate_num_ = int(max(sup_generate_num*0.7,inf_user_rating_num))
         else:
             sup_generate_num_ = int(sup_generate_num)
 

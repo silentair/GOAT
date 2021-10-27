@@ -111,11 +111,11 @@ def generateFromModel_tf1(dataset_name, model_path, inject_size, sup_generate_nu
 
 # using example for above function
 #dataset_name = 'xxx'
-#model_path = 'models_GOAT_xxx'
-#inject_size = 0.01
-#sup_generate_num = 15
-#inf_user_rating_num = 10
-#selected_size = 0.3
+#model_path = 'models_GOAT_xxxxx/'
+#inject_size = xxx
+#sup_generate_num = xxx
+#inf_user_rating_num = xxx
+#selected_size = xxx
 #generateFromModel_tf1(dataset_name, model_path, inject_size, sup_generate_num, inf_user_rating_num, selected_size)
 
 
@@ -227,9 +227,9 @@ def generateFromModel_tf2(dataset_name, model_path, inject_size, sup_generate_nu
 
 # using example for above function
 #dataset_name = 'xxx'
-#model_path = 'models_GOAT_xxx/xxx.weights'
-#inject_size = 0.01
-#sup_generate_num = 15
-#inf_user_rating_num = 10
-#selected_size = 0.3
+#model_path = 'models_GOAT_xxxxx/xxx.weights'
+#inject_size = xx
+#sup_generate_num = xx
+#inf_user_rating_num = xx
+#selected_size = xx
 #generateFromModel_tf2(dataset_name, model_path, inject_size, sup_generate_num, inf_user_rating_num, selected_size)

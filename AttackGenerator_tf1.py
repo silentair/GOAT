@@ -131,8 +131,8 @@ loss_rating_fake_d = R_fake_d
 loss_rating_d = loss_rating_real_d + loss_rating_fake_d + reg_grad * (tf.norm(tf.gradients(R_medium_d,R_medium),ord=2)-1)**2
 
 # variable list
-var_list_rating_g = [w1_link_g,b1_link_g,w2_link_g,b2_link_g, w1_embed_g,b1_embed_g,w2_embed_g,b2_embed_g,w1_rating_g,b1_rating_g]
-var_list_rating_d = [w1_rating_d,b1_rating_d,w2_rating_d,b2_rating_d,w3_rating_d,b3_rating_d]
+var_list_rating_g = [w1_link_g,b1_link_g,w2_link_g,b2_link_g,w3_link_g,b3_link_g, w1_embed_g,b1_embed_g,w2_embed_g,b2_embed_g,w3_embed_g,b3_embed_g, w1_rating_g,b1_rating_g]
+var_list_rating_d = [w1_rating_d,b1_rating_d,w2_rating_d,b2_rating_d,w3_rating_d,b3_rating_d,w4_rating_d,b4_rating_d]
 
 # optimizer for generator
 rating_op_g = tf.train.AdamOptimizer(lr).minimize(loss_rating_g, var_list=var_list_rating_g)
