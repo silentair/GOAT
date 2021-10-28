@@ -31,6 +31,9 @@ reg_grad = 10
 reg_rating = 10
 # learning rate
 lr = 0.001
+# phase
+training_phase = [0.5,0.7]
+generate_phase = [0.5,0.7]
 
 # time
 time_consuming = 0
@@ -165,10 +168,10 @@ if __name__ == '__main__':
     attacker = AttackGenerator()
     
     for epoch in range(epoch_num):
-        if epoch < epoch_num*0.5:
-            sup_generate_num_ = int(max(sup_generate_num*0.5,inf_user_rating_num))
-        elif epoch < epoch_num*0.7:
-            sup_generate_num_ = int(max(sup_generate_num*0.7,inf_user_rating_num))
+        if epoch < epoch_num*training_phase[0]:
+            sup_generate_num_ = int(max(sup_generate_num*generate_phase[0],inf_user_rating_num))
+        elif epoch < epoch_num*training_phase[1]:
+            sup_generate_num_ = int(max(sup_generate_num*generate_phase[1],inf_user_rating_num))
         else:
             sup_generate_num_ = int(sup_generate_num)
 
