@@ -12,6 +12,9 @@
 ## AttackGenerator_xx.py
 #### Shilling attack model initializing and training. <br>
 
+## GenerateFromModel.py
+#### Generate fake profiles after the model was saved. <br>
+
 ## Other tips
 #### *How to use it: (in command line) 'python AttackGenerator_xx.py'
 #### *It would take a while at the first running for data processing, and the results will be saved locally.
